@@ -1,15 +1,33 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { collection, addDoc } from "firebase/firestore/lite";
+import { db } from "../conectadb";
 
-const Formulario = () => {
+const Formulario = ({filmes, setFilmes}) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue
   } = useForm();
 
-  const onSubmit = (data) => {
-    alert(JSON.stringify(data));
+  const onSubmit = async (data) => {
+    //alert(JSON.stringify(data));
+
+    // Add a new document with a generated id.
+    const docRef = await addDoc(collection(db, "filmes"), data);
+    alert("Filme Cadastrado com Sucesso! ID: " + docRef.id);
+
+    // acrescenta o novo filme na lista de filmes (a partir do setFilmes)
+    // para atualizar a Listagem
+    data.id = docRef.id;
+    const filmes2 = [...filmes, data];
+    setFilmes(filmes2);
+
+    // limpa os campos de formulário
+    setValue("titulo", "");
+    setValue("link", "");
+    setValue("sinopse", "");
   }; // your form submit function which will invoke after successful validation
 
   return (
